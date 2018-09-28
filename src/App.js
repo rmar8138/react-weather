@@ -73,38 +73,57 @@ const WeatherCardContainer = styled.div`
 `;
 
 class App extends Component {
-  state = {
-    isCelsius: true,
-    title: "",
-    todaysWeather: {
-      the_temp: null,
-      applicable_date: null,
-      weather_state_name: null,
-      weather_state_abbr: null
-    },
-    nextFiveDaysWeather: [],
-    searchResults: null
-  };
+  constructor() {
+    super();
+    this.state = {
+      isCelsius: true,
+      title: "",
+      country: "",
+      todaysWeather: {
+        the_temp: null,
+        applicable_date: null,
+        weather_state_name: null,
+        weather_state_abbr: null
+      },
+      nextFiveDaysWeather: [],
+      isSearchListActive: false,
+      searchResults: null
+    };
+  }
+
+  componentDidMount() {
+    window.addEventListener("click", e => {
+      console.log(e.target);
+      if (e.target.id !== "searchItem") {
+        this.setState({
+          isSearchListActive: false
+        });
+      }
+    });
+  }
 
   searchLocation = query => {
-    fetch(
-      `https://cors-anywhere.herokuapp.com/https://www.metaweather.com/api/location/search/?query=${query}`
-    )
-      .then(results => results.json())
-      .then(results => {
-        console.log(results);
-        if (results.length === 1) {
-          // if only one search result, immediately search for weather
-          this.getWeather(results[0].woeid);
-        } else if (results.length > 1) {
-          // if more than one search result, display list of results
-          this.setState({
-            searchResults: results
-          });
-        } else {
-          // if no results, display message
-        }
-      });
+    if (query) {
+      fetch(
+        `https://cors-anywhere.herokuapp.com/https://www.metaweather.com/api/location/search/?query=${query}`
+      )
+        .then(results => results.json())
+        .then(results => {
+          console.log(results);
+          if (results.length === 1) {
+            // if only one search result, immediately search for weather
+            this.getWeather(results[0].woeid);
+          } else if (results.length > 1) {
+            // if more than one search result, display list of results
+            this.setState({
+              isSearchListActive: true,
+              searchResults: results
+            });
+          } else {
+            // if no results, display message
+          }
+        });
+    }
   };
 
   getWeather = woeid => {
@@ -116,6 +135,7 @@ class App extends Component {
         console.log(weather);
         this.setState({
           title: weather.title,
+          country: weather.parent.title,
           todaysWeather: {
             the_temp: this.state.isCelsius
               ? Math.round(weather.consolidated_weather[0].the_temp)
@@ -125,7 +145,7 @@ class App extends Component {
             applicable_date: moment(
               weather.consolidated_weather[0].applicable_date,
               "YYYY-MM-DD"
-            ).format("dddd MMMM Do"),
+            ).format("dddd, Do MMMM"),
             weather_state_name:
               weather.consolidated_weather[0].weather_state_name,
             weather_state_abbr:
@@ -149,6 +169,7 @@ class App extends Component {
                 weather_state_abbr: day.weather_state_abbr
               };
             }),
+          isSearchListActive: false,
           searchResults: null
         });
       });
@@ -220,10 +241,12 @@ class App extends Component {
         <Nav>
           <h1>React Weather</h1>
           <div>
-            <ScaleButton onClick={this.changeScale}>Change scale</ScaleButton>
+            <ScaleButton onClick={this.changeScale}>
+              Change to {this.state.isCelsius ? "Farenheit" : "Celsius"}
+            </ScaleButton>
           </div>
           <SearchBar searchLocation={this.searchLocation} />
-          {this.state.searchResults && (
+          {this.state.isSearchListActive && (
             <SearchList
               searchResults={this.state.searchResults}
               clickSearchItem={this.clickSearchItem}
@@ -234,6 +257,7 @@ class App extends Component {
           {this.state.todaysWeather.the_temp ? (
             <TodaysWeather
               title={this.state.title}
+              country={this.state.country}
               weather={this.state.todaysWeather}
               isCelsius={this.state.isCelsius}
             />

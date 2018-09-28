@@ -19,6 +19,10 @@ const Input = styled.input`
   :focus {
     outline: none;
   }
+
+  :valid {
+    background-color: white;
+  }
 `;
 
 const SearchButton = styled.button`
@@ -29,6 +33,7 @@ const SearchButton = styled.button`
   color: white;
   font-size: 1rem;
   border: none;
+  padding: 0 0.5rem;
   transition: all 0.2s;
 
   :hover {

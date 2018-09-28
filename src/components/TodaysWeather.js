@@ -34,11 +34,13 @@ const Day = styled.h2`
 
 const Icon = styled.img`
   width: 100px;
+  justify-self: center;
 `;
 
 const Temperature = styled.h2`
   font-size: 3.6rem;
   font-weight: 100;
+  justify-self: center;
 `;
 
 const Description = styled.p`
@@ -48,7 +50,9 @@ const Description = styled.p`
 
 export default props => (
   <Container>
-    <Location>{props.title}</Location>
+    <Location>
+      {props.title}, {props.country}
+    </Location>
     <Day>{props.weather.applicable_date}</Day>
     <Icon
       src={`https://www.metaweather.com/static/img/weather/${

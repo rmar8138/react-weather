@@ -41,6 +41,7 @@ export default class SearchList extends Component {
               key={shortid.generate()}
               data-value={result.title}
               onClick={this.onClick}
+              id="searchItem"
             >
               {result.title}
             </ListItem>
